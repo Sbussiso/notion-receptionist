@@ -1,4 +1,5 @@
 import axios from 'axios';
+import GmailClient from './gmail.js'; // Adjust the path as needed
 
 class Alert {
     constructor(alert, description, resolution, resolved) {
@@ -6,6 +7,7 @@ class Alert {
         this.description = description;
         this.resolution = resolution;
         this.resolved = resolved;
+        this.gmailClient = new GmailClient();
     }
 
     getAlerts() {
@@ -74,7 +76,22 @@ class Alert {
             console.error('Error creating page:', error.response ? error.response.data : error.message);
         }
     }
+
+    async sendEmail() {
+        await this.gmailClient.initialize();
+        const alertContent = this.getAlerts();
+        const emailContent = [
+            'Content-Type: text/plain; charset="UTF-8"\n',
+            'MIME-Version: 1.0\n',
+            'Content-Transfer-Encoding: 7bit\n',
+            'to: sbussiso321@gmail.com\n',  // Replace with the actual recipient email
+            'from: sbussiso321@gmail.com\n',  // Replace with the actual sender email
+            'subject: Notion Assistant Alert System\n\n',
+            alertContent
+        ].join('');
+
+        await this.gmailClient.sendEmail(emailContent);
+    }
 }
 
-// Export the Alert class
 export default Alert;

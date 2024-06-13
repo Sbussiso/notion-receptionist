@@ -1,11 +1,11 @@
 import axios from 'axios';
-import getTodoList from './gpt-todo.js'; // Import the getTodoList function
-import Alert from './page-alerts.js';
+import TodoGenerator from './gpt-todo.js'; // Import the TodoGenerator class
+import Alert from './alert.js'; // Import the Alert class
 
 // Replace with your Notion API key
 const notionApiKey = 'secret_mQ545sMhgR8c4yrEZn5x5JUboc1mzxibO9Nzy02F8CB';
 
-// Replace with the Notion page ID you want to retrieve data from
+// Replace with the Notion page ID you want to use
 const pageId = '600586222a744448b3360d7c43ba9593';
 
 // Set up Axios instance with Notion API key
@@ -26,9 +26,6 @@ async function getPageData(pageId) {
     console.error('Error fetching page data:', error);
   }
 }
-
-// Call the function to get page data
-getPageData(pageId);
 
 // Function to parse blocks and display content
 function parseBlocks(blocks) {
@@ -51,73 +48,25 @@ async function getPageBlocks(pageId) {
   }
 }
 
-// Call the function to get page blocks
-getPageBlocks(pageId);
-
-// Function to get current date and time in default format
-function getFormattedDateTime() {
-  const now = new Date();
-  return now.toLocaleString();
+// Create and send TODO list
+async function createTodoPage(apiKey, pageId) {
+  const todoGenerator = new TodoGenerator();
+  await todoGenerator.createNotionPage(apiKey, pageId);
+  console.log("TODO list created successfully!");
 }
 
-// Function to create a new page in Notion
-async function createPageTodo() {
-  const formattedDateTime = getFormattedDateTime();
-  console.log('Current Date and Time:', formattedDateTime);
-
-  // Fetch TODO list from GPT-3
-  const todoContent = await getTodoList();
-
-  const newPageData = {
-    parent: { 
-      type: 'page_id', 
-      page_id: '600586222a744448b3360d7c43ba9593' // Replace with the ID of the parent page or database
-    },
-    properties: {
-      title: [
-        {
-          type: 'text',
-          text: {
-            content: 'TODO: ' + formattedDateTime // Replace with your desired page title
-          }
-        }
-      ]
-    },
-    children: [
-      {
-        object: 'block',
-        type: 'paragraph',
-        paragraph: {
-          rich_text: [
-            {
-              type: 'text',
-              text: {
-                content: todoContent // Replace with the TODO list content from GPT-3
-              }
-            }
-          ]
-        }
-      }
-    ]
-  };
-
-  try {
-    const response = await notion.post('pages', newPageData);
-    console.log('Page created:', response.data);
-  } catch (error) {
-    console.error('Error creating page:', error.response ? error.response.data : error.message);
-  }
+// Create and send alert
+async function createAlert(apiKey, pageId) {
+  const alertInstance = new Alert("Server Down", "The main server is down.", "Restart the server.", false);
+  await alertInstance.sendEmail();
+  await alertInstance.createNotionPage(apiKey, pageId);
+  console.log("Alert created and email sent successfully!");
 }
 
-// Call the function to create a new page
-createPageTodo(); //!WORKS!
-console.log("TODO list created successfully!");
-
-
-
-
-//TODO: Handle email and phone notifications
-// Create an instance of Alert and create a page in Notion
-const alertInstance = new Alert("Server Down", "The main server is down.", "Restart the server.", false);
-alertInstance.createNotionPage(notionApiKey, pageId);
-console.log("Alert created successfully!");
+// Execute the functions
+(async () => {
+  await getPageData(pageId);
+  await getPageBlocks(pageId);
+  await createTodoPage(notionApiKey, pageId);
+  await createAlert(notionApiKey, pageId);
+})();
