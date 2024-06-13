@@ -1,6 +1,6 @@
 import axios from 'axios';
 import getTodoList from './gpt-todo.js'; // Import the getTodoList function
-import Alert from './page-alerts.js'; // Import the Alert class
+import Alert from './page-alerts.js';
 
 // Replace with your Notion API key
 const notionApiKey = 'secret_mQ545sMhgR8c4yrEZn5x5JUboc1mzxibO9Nzy02F8CB';
@@ -114,56 +114,10 @@ createPageTodo(); //!WORKS!
 console.log("TODO list created successfully!");
 
 
-// Function to create a new page in Notion
-async function createPageAlert() {
-  const formattedDateTime = getFormattedDateTime();
-  console.log('Current Date and Time:', formattedDateTime);
 
-  // Create an instance of Alert and get alert details
-  const alertInstance = new Alert("Server Down", "The main server is down.", "Restart the server.", false);
-  const alertContent = alertInstance.getAlerts();
 
-  const newPageData = {
-    parent: { 
-      type: 'page_id', 
-      page_id: '600586222a744448b3360d7c43ba9593' // Replace with the ID of the parent page or database
-    },
-    properties: {
-      title: [
-        {
-          type: 'text',
-          text: {
-            content: 'ALERT: ' + formattedDateTime // Replace with your desired page title
-          }
-        }
-      ]
-    },
-    children: [
-      {
-        object: 'block',
-        type: 'paragraph',
-        paragraph: {
-          rich_text: [
-            {
-              type: 'text',
-              text: {
-                content: alertContent // Replace with alert content
-              }
-            }
-          ]
-        }
-      }
-    ]
-  };
-
-  try {
-    const response = await notion.post('pages', newPageData);
-    console.log('Page created:', response.data);
-  } catch (error) {
-    console.error('Error creating page:', error.response ? error.response.data : error.message);
-  }
-}
-
-// Call the function to create a new page
-createPageAlert(); //!WORKS!
+//TODO: Handle email and phone notifications
+// Create an instance of Alert and create a page in Notion
+const alertInstance = new Alert("Server Down", "The main server is down.", "Restart the server.", false);
+alertInstance.createNotionPage(notionApiKey, pageId);
 console.log("Alert created successfully!");
