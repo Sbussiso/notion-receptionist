@@ -4,6 +4,7 @@
     "@notionhq/client": "^2.2.15",
     "axios": "^1.7.2",
     "dotenv": "^16.4.5",
-    "openai": "^4.51.0"
+    "openai": "^4.51.0",
+    "twilio": "^5.1.1"
   }
 }
