@@ -60,7 +60,8 @@ async function createAlert(apiKey, pageId) {
   const alertInstance = new Alert("Server Down", "The main server is down.", "Restart the server.", false);
   await alertInstance.sendEmail();
   await alertInstance.createNotionPage(apiKey, pageId);
-  console.log("Alert created and email sent successfully!");
+  await alertInstance.sendSMSMessage();
+  console.log("Alert created, email sent, and SMS sent successfully!");
 }
 
 // Execute the functions
