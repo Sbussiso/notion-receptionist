@@ -1,7 +1,7 @@
 import { getPageData, getPageBlocks, notionApi } from './pages.js';
 import TodoGenerator from './gpt-todo.js'; // Import the TodoGenerator class
 import Alert from './alert.js'; // Import the Alert class
-import { reschedulePastEvents } from './event-manager.js'; // Import the reschedule function
+import { reschedulePastEvents, listNotionPages } from './event-manager.js'; // Import the new function
 
 // Create and send TODO list
 async function createTodoPage(apiKey, pageId) {
@@ -19,6 +19,21 @@ async function createAlert(apiKey, pageId) {
   console.log("Alert created, email sent, and SMS sent successfully!");
 }
 
+// Function to list all pages in a Notion parent page
+async function listAllNotionPages(parentPageId) {
+  try {
+    const pages = await listNotionPages(parentPageId);
+    console.log("Notion Pages:");
+    pages.forEach(page => {
+      if (page.type === 'child_page') {
+        console.log(`- ${page.child_page.title}`);
+      }
+    });
+  } catch (error) {
+    console.error('Error listing Notion pages:', error);
+  }
+}
+
 // Execute the functions
 (async () => {
   await getPageData(notionApi.pageId);
@@ -26,4 +41,5 @@ async function createAlert(apiKey, pageId) {
   await createTodoPage(notionApi.key, notionApi.pageId);
   await createAlert(notionApi.key, notionApi.pageId);
   await reschedulePastEvents(); // Call the reschedule function
+  await listAllNotionPages(notionApi.pageId); // Call the function to list all Notion pages
 })();

@@ -1,5 +1,35 @@
 import GmailClient from './g-client.js';
 import Alert from './alert.js'; // Import the Alert class
+import { notionApi } from './pages.js'; // Import Notion API details
+
+// Function to list all child pages under a Notion parent page
+async function listNotionPages(parentPageId) {
+  try {
+    const response = await fetch(`https://api.notion.com/v1/blocks/${parentPageId}/children`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${notionApi.key}`,
+        'Content-Type': 'application/json',
+        'Notion-Version': '2022-06-28' // Ensure the correct API version
+      }
+    });
+
+    // Log response for debugging
+    console.log('Notion API response status:', response.status);
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      console.error('Error response from Notion API:', errorResponse);
+      throw new Error('Failed to fetch Notion pages');
+    }
+
+    const data = await response.json();
+    return data.results;
+  } catch (error) {
+    console.error('Error in listNotionPages:', error);
+    throw error;
+  }
+}
 
 // Updates events in the calendar by moving expired events to the next future day
 async function reschedulePastEvents() {
@@ -42,5 +72,5 @@ async function reschedulePastEvents() {
   }
 }
 
-// Export the function for external usage
-export { reschedulePastEvents };
+// Export the functions for external usage
+export { reschedulePastEvents, listNotionPages };
