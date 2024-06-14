@@ -109,8 +109,14 @@ class NotionDatabaseManager {
       await this.updateEnvFile(newDatabaseId);
     }
   }
+
+  get databaseId() {
+    return this._databaseId;
+  }
+
+  set databaseId(value) {
+    this._databaseId = value;
+  }
 }
 
-// Instantiate the class and ensure the database exists
-const databaseManager = new NotionDatabaseManager();
-databaseManager.ensureDatabaseExists();
+export default NotionDatabaseManager;

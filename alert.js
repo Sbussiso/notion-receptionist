@@ -24,7 +24,7 @@ class Alert {
     return alertDetails;
   }
 
-  async createNotionPage(apiKey, pageId) {
+  async createNotionPage(apiKey, databaseId) {
     const formattedDateTime = new Date().toLocaleString();
     const notion = axios.create({
       baseURL: 'https://api.notion.com/v1/',
@@ -38,18 +38,25 @@ class Alert {
 
     const newPageData = {
       parent: {
-        type: 'page_id',
-        page_id: pageId, // Replace with the ID of the parent page or database
+        type: 'database_id',
+        database_id: databaseId, // Use database ID instead of page ID
       },
       properties: {
-        title: [
-          {
-            type: 'text',
-            text: {
-              content: 'ALERT: ' + formattedDateTime, // Replace with your desired page title
+        Task: {
+          title: [
+            {
+              text: {
+                content: 'ALERT: ' + formattedDateTime, // Replace with your desired page title
+              },
             },
-          },
-        ],
+          ],
+        },
+        Acknowledge: {
+          checkbox: false,
+        },
+        Completed: {
+          checkbox: false,
+        },
       },
       children: [
         {
@@ -68,6 +75,8 @@ class Alert {
         },
       ],
     };
+
+    console.log('Creating Notion page with data:', JSON.stringify(newPageData, null, 2));
 
     try {
       const response = await notion.post('pages', newPageData);

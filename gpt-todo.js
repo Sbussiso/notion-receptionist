@@ -17,7 +17,6 @@ class TodoGenerator {
   async getTodoList() {
     const calendarData = await this.getCalendarData();
 
-
     const format = `Write a TODO list for today in the following format FORMAT:
                     FORMAT:
                     [] item
@@ -41,7 +40,7 @@ class TodoGenerator {
     return completion.choices[0].message.content;
   }
 
-  async createNotionPage(apiKey, pageId) {
+  async createNotionPage(apiKey, databaseId) {
     const formattedDateTime = new Date().toLocaleString();
     const notion = axios.create({
       baseURL: 'https://api.notion.com/v1/',
@@ -55,18 +54,25 @@ class TodoGenerator {
 
     const newPageData = {
       parent: { 
-        type: 'page_id', 
-        page_id: pageId // Replace with the ID of the parent page or database
+        type: 'database_id', 
+        database_id: databaseId // Replace with the ID of the database
       },
       properties: {
-        title: [
-          {
-            type: 'text',
-            text: {
-              content: 'TODO: ' + formattedDateTime // Replace with your desired page title
+        Task: {
+          title: [
+            {
+              text: {
+                content: 'TODO: ' + formattedDateTime // Replace with your desired page title
+              }
             }
-          }
-        ]
+          ]
+        },
+        Acknowledge: {
+          checkbox: false,
+        },
+        Completed: {
+          checkbox: false,
+        },
       },
       children: [
         {
