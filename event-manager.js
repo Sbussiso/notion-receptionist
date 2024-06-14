@@ -1,5 +1,7 @@
 import GmailClient from './g-client.js';
+import Alert from './alert.js'; // Import the Alert class
 
+// Updates events in the calendar by moving expired events to the next future day
 async function reschedulePastEvents() {
   const gmailClient = new GmailClient();
   await gmailClient.initialize();
@@ -40,5 +42,5 @@ async function reschedulePastEvents() {
   }
 }
 
-// Call the function to reschedule past events
-reschedulePastEvents();
+// Export the function for external usage
+export { reschedulePastEvents };
