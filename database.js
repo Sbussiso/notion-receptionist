@@ -1,10 +1,12 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
+import fs from 'fs/promises';
 
 dotenv.config();
 
 const notionApiKey = process.env.NOTION_API_KEY;
 const parentPageId = process.env.NOTION_PARENT_PAGE_ID;
+let databaseId = process.env.NOTION_DATABASE_ID;
 
 const notion = axios.create({
   baseURL: 'https://api.notion.com/v1/',
@@ -56,27 +58,52 @@ async function createDatabase() {
     });
 
     console.log('Database created:', response.data);
-    return response.data;
+    return response.data.id;  // Return the new database ID
   } catch (error) {
     console.error('Error creating database:', error.response ? error.response.data : error);
     throw error;
   }
 }
 
-async function ensureDatabaseExists(databaseId) {
-  if (!databaseId || databaseId === 'your_database_id') {
-    console.log('No database ID provided, creating a new database...');
-    await createDatabase();
-  } else {
-    const exists = await checkDatabaseExists(databaseId);
-    if (!exists) {
-      console.log('Database does not exist, creating one now...');
-      await createDatabase();
+async function updateEnvFile(newDatabaseId) {
+  try {
+    const envFile = await fs.readFile('.env', 'utf-8');
+    const envLines = envFile.split('\n');
+    const updatedEnvLines = envLines.map(line => {
+      if (line.startsWith('NOTION_DATABASE_ID=')) {
+        return `NOTION_DATABASE_ID=${newDatabaseId}`;
+      }
+      return line;
+    });
+
+    if (!envLines.some(line => line.startsWith('NOTION_DATABASE_ID='))) {
+      updatedEnvLines.push(`NOTION_DATABASE_ID=${newDatabaseId}`);
     }
+
+    await fs.writeFile('.env', updatedEnvLines.join('\n'));
+    console.log('Updated .env file with new database ID');
+  } catch (error) {
+    console.error('Error updating .env file:', error);
+    throw error;
   }
 }
 
-// Replace 'your_database_id' with a valid database ID or leave it empty to create a new database
-const databaseId = '25749ed982594014978e424f15e8a0f5'; // Replace this with the actual ID if you have one, or leave it as 'your_database_id' for testing
+async function ensureDatabaseExists(databaseId) {
+  let validDatabaseId = false;
+
+  if (databaseId && databaseId !== 'your_database_id') {
+    try {
+      validDatabaseId = await checkDatabaseExists(databaseId);
+    } catch (error) {
+      console.log('Invalid database ID, creating a new database...');
+    }
+  }
+
+  if (!validDatabaseId) {
+    console.log('No valid database ID provided or database does not exist, creating a new database...');
+    const newDatabaseId = await createDatabase();
+    await updateEnvFile(newDatabaseId);
+  }
+}
 
 ensureDatabaseExists(databaseId);
