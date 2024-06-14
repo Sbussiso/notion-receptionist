@@ -1,5 +1,5 @@
 import axios from 'axios';
-import GmailClient from './gmail.js'; // Adjust the path as needed
+import GmailClient from './g-client.js'; // Adjust the path as needed
 import sendSMS from './sendSMS.js'; // Import the sendSMS function
 
 class Alert {

@@ -43,6 +43,7 @@ async function getPageBlocks(pageId) {
     const response = await notion.get(`blocks/${pageId}/children`);
     const blocks = response.data.results;
     parseBlocks(blocks);
+    
   } catch (error) {
     console.error('Error fetching page blocks:', error);
   }
@@ -69,5 +70,5 @@ async function createAlert(apiKey, pageId) {
   await getPageData(pageId);
   await getPageBlocks(pageId);
   await createTodoPage(notionApiKey, pageId);
-  await createAlert(notionApiKey, pageId);
+  //await createAlert(notionApiKey, pageId);
 })();

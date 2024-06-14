@@ -4,7 +4,12 @@ import fs from 'fs';
 import path from 'path';
 
 // If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/gmail.send', 'https://www.googleapis.com/auth/gmail.readonly'];
+const SCOPES = [
+  'https://www.googleapis.com/auth/gmail.send',
+  'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/calendar.readonly',
+  'https://www.googleapis.com/auth/calendar.events'
+];
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
 
@@ -100,6 +105,102 @@ class GmailClient {
       }
     } catch (err) {
       console.log('The API returned an error:', err);
+    }
+  }
+
+  async listEvents() {
+    const calendar = google.calendar({ version: 'v3', auth: this.oAuth2Client });
+    const res = await calendar.events.list({
+      calendarId: 'primary',
+      timeMin: (new Date()).toISOString(),
+      maxResults: 10,
+      singleEvents: true,
+      orderBy: 'startTime',
+    });
+    const events = res.data.items;
+    if (events.length) {
+      console.log('Upcoming 10 events:');
+      events.map((event, i) => {
+        const start = event.start.dateTime || event.start.date;
+        console.log(`${start} - ${event.summary}`);
+      });
+      return events;
+    } else {
+      console.log('No upcoming events found.');
+      return [];
+    }
+  }
+
+  async listPastEvents() {
+    const calendar = google.calendar({ version: 'v3', auth: this.oAuth2Client });
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const res = await calendar.events.list({
+      calendarId: 'primary',
+      timeMin: startOfMonth,
+      timeMax: now.toISOString(),
+      singleEvents: true,
+      orderBy: 'startTime',
+    });
+    const events = res.data.items;
+    if (events.length) {
+      console.log('Past events this month:');
+      events.map((event, i) => {
+        const start = event.start.dateTime || event.start.date;
+        console.log(`${start} - ${event.summary}`);
+      });
+      return events;
+    } else {
+      console.log('No past events found.');
+      return [];
+    }
+  }
+
+  async createEvent(summary, location, description, startDateTime, endDateTime, timeZone, recurrence, attendees, reminders) {
+    const event = {
+      summary: summary,
+      location: location,
+      description: description,
+      start: {
+        dateTime: startDateTime,
+        timeZone: timeZone,
+      },
+      end: {
+        dateTime: endDateTime,
+        timeZone: timeZone,
+      },
+      recurrence: recurrence,
+      attendees: attendees,
+      reminders: reminders,
+    };
+
+    const calendar = google.calendar({ version: 'v3', auth: this.oAuth2Client });
+
+    try {
+      const res = await calendar.events.insert({
+        calendarId: 'primary',
+        resource: event,
+      });
+      console.log('Event created:', res.data);
+      return res.data;
+    } catch (err) {
+      console.error('Error creating event:', err);
+      throw err;
+    }
+  }
+
+  async deleteEvent(eventId) {
+    const calendar = google.calendar({ version: 'v3', auth: this.oAuth2Client });
+
+    try {
+      await calendar.events.delete({
+        calendarId: 'primary',
+        eventId: eventId,
+      });
+      console.log('Event deleted:', eventId);
+    } catch (err) {
+      console.error('Error deleting event:', err);
+      throw err;
     }
   }
 }
