@@ -105,7 +105,13 @@ class Alert {
   async sendSMSMessage() {
     const alertContent = this.getAlerts();
     const smsBody = `ALERT: ${this.alert}\nDescription: ${this.description}\nResolution: ${this.resolution}\nResolved: ${this.resolved}`;
-    await sendSMS(smsBody, 'whatsapp:+14155238886', 'whatsapp:+13602806070'); // Replace with actual sender and recipient numbers
+    console.log('Sending SMS with body:', smsBody);
+    try {
+      await sendSMS(smsBody, 'whatsapp:+14155238886', 'whatsapp:+13602806070'); // Replace with actual sender and recipient numbers
+      console.log('SMS sent successfully');
+    } catch (error) {
+      console.error('Error sending SMS:', error);
+    }
   }
 }
 
