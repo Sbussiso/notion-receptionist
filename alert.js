@@ -1,6 +1,9 @@
 import axios from 'axios';
+import dotenv from 'dotenv';
 import GmailClient from './g-client.js'; // Adjust the path as needed
 import sendSMS from './sendSMS.js'; // Import the sendSMS function
+
+dotenv.config(); // Load environment variables
 
 class Alert {
   constructor(alert, description, resolution, resolved) {
@@ -93,8 +96,8 @@ class Alert {
       'Content-Type: text/plain; charset="UTF-8"\n',
       'MIME-Version: 1.0\n',
       'Content-Transfer-Encoding: 7bit\n',
-      'to: sbussiso321@gmail.com\n',  // Replace with the actual recipient email
-      'from: sbussiso321@gmail.com\n',  // Replace with the actual sender email
+      `to: ${process.env.GMAIL_USER}\n`,  // Use environment variable for recipient email
+      `from: ${process.env.GMAIL_USER}\n`,  // Use environment variable for sender email
       'subject: Notion Assistant Alert System\n\n',
       alertContent
     ].join('');
@@ -107,7 +110,7 @@ class Alert {
     const smsBody = `ALERT: ${this.alert}\nDescription: ${this.description}\nResolution: ${this.resolution}\nResolved: ${this.resolved}`;
     console.log('Sending SMS with body:', smsBody);
     try {
-      await sendSMS(smsBody, 'whatsapp:+14155238886', 'whatsapp:+13602806070'); // Replace with actual sender and recipient numbers
+      await sendSMS(smsBody, process.env.SMS_SENDER, process.env.SMS_RECIPIENT); // Use environment variables for sender and recipient numbers
       console.log('SMS sent successfully');
     } catch (error) {
       console.error('Error sending SMS:', error);

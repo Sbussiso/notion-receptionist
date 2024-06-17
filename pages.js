@@ -1,10 +1,14 @@
 import axios from 'axios';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 // Replace with your Notion API key
-const notionApiKey = 'secret_mQ545sMhgR8c4yrEZn5x5JUboc1mzxibO9Nzy02F8CB';
+const notionApiKey = process.env.NOTION_API_KEY;
 
 // Replace with the Notion page ID you want to use
-const pageId = '600586222a744448b3360d7c43ba9593';
+const pageId = process.env.NOTION_PARENT_PAGE_ID;
 
 // Set up Axios instance with Notion API key
 const notion = axios.create({

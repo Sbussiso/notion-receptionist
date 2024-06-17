@@ -1,9 +1,13 @@
 import OpenAI from 'openai';
 import axios from 'axios';  // Import axios
 import GmailClient from './g-client.js'; // Import GmailClient
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 const openai = new OpenAI({
-  apiKey: 'sk-proj-w0Cu7DodOPSJYnpbPVs9T3BlbkFJz1Hmy1roYNOwO4v6taiT'
+  apiKey: process.env.OPENAI_API_KEY
 });
 
 class TodoGenerator {
@@ -40,12 +44,12 @@ class TodoGenerator {
     return completion.choices[0].message.content;
   }
 
-  async createNotionPage(apiKey, databaseId) {
+  async createNotionPage() {
     const formattedDateTime = new Date().toLocaleString();
     const notion = axios.create({
       baseURL: 'https://api.notion.com/v1/',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${process.env.NOTION_API_KEY}`,
         'Notion-Version': '2022-06-28',
       },
     });
@@ -55,7 +59,7 @@ class TodoGenerator {
     const newPageData = {
       parent: { 
         type: 'database_id', 
-        database_id: databaseId // Replace with the ID of the database
+        database_id: process.env.NOTION_DATABASE_ID // Replace with the ID of the database
       },
       properties: {
         Task: {
