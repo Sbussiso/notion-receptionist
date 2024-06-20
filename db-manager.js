@@ -17,12 +17,13 @@ const notion = axios.create({
 
 class NotionDatabaseManager {
   constructor(databaseId) {
-    this.databaseId = databaseId || process.env.NOTION_DATABASE_ID;
+    this._databaseId = databaseId || process.env.NOTION_DATABASE_ID;
   }
 
+  // Check if the database exists
   async checkDatabaseExists() {
     try {
-      const response = await notion.get(`databases/${this.databaseId}`);
+      const response = await notion.get(`databases/${this._databaseId}`);
       console.log('Database exists:', response.data);
       return true;
     } catch (error) {
@@ -36,6 +37,7 @@ class NotionDatabaseManager {
     }
   }
 
+  // Create a new database
   async createDatabase() {
     try {
       const response = await notion.post('databases', {
@@ -69,6 +71,7 @@ class NotionDatabaseManager {
     }
   }
 
+  // Update the .env file with the new database ID
   async updateEnvFile(newDatabaseId) {
     try {
       const envFile = await fs.readFile('.env', 'utf-8');
@@ -92,10 +95,11 @@ class NotionDatabaseManager {
     }
   }
 
+  // Ensure the database exists
   async ensureDatabaseExists() {
     let validDatabaseId = false;
 
-    if (this.databaseId && this.databaseId !== 'your_database_id') {
+    if (this._databaseId && this._databaseId !== 'your_database_id') {
       try {
         validDatabaseId = await this.checkDatabaseExists();
       } catch (error) {
@@ -107,9 +111,34 @@ class NotionDatabaseManager {
       console.log('No valid database ID provided or database does not exist, creating a new database...');
       const newDatabaseId = await this.createDatabase();
       await this.updateEnvFile(newDatabaseId);
+      this._databaseId = newDatabaseId;
     }
   }
 
+  // Retrieve all tasks from the database
+  async getAllTasks() {
+    try {
+      const response = await notion.post(`databases/${this._databaseId}/query`);
+      return response.data.results;
+    } catch (error) {
+      console.error('Error retrieving tasks:', error);
+      throw error;
+    }
+  }
+
+  // Delete a task from the database
+  async deleteTask(taskId) {
+    try {
+      const response = await notion.delete(`blocks/${taskId}`);
+      console.log(`Task ${taskId} deleted successfully.`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      throw error;
+    }
+  }
+
+  // Getters and setters for databaseId
   get databaseId() {
     return this._databaseId;
   }

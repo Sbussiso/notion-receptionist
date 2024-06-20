@@ -1,6 +1,7 @@
 import GmailClient from './g-client.js';
-import Alert from './alert.js'; // Import the Alert class
-import { notionApi } from './pages.js'; // Import Notion API details
+import Alert from './alert.js';
+import { notionApi } from './pages.js';
+import NotionDatabaseManager from './db-manager.js';
 
 // Function to list all child pages under a Notion parent page
 async function listNotionPages(parentPageId) {
@@ -72,5 +73,38 @@ async function reschedulePastEvents() {
   }
 }
 
+// Function to check if the acknowledge checkbox on the row of Task TODO has been checked
+async function checkAcknowledgeCheckbox(task) {
+  const taskTitle = task.properties.Task?.title?.[0]?.plain_text;
+  if (taskTitle && task.properties.Acknowledge && !task.properties.Acknowledge.checkbox) {
+    const alertInstance = new Alert("Task Not Acknowledged", `Task "${taskTitle}" has not been acknowledged.`, "Please acknowledge the task.", false);
+    await alertInstance.sendEmail();
+    await alertInstance.createNotionPage(notionApi.key, notionApi.databaseId);
+    await alertInstance.sendSMSMessage();
+  }
+}
+
+// Function to check if the completed checkbox on the row of Task TODO has been checked
+async function checkCompletedCheckbox(task, databaseClient) {
+  const taskTitle = task.properties.Task?.title?.[0]?.plain_text;
+  if (taskTitle && task.properties.Completed && task.properties.Completed.checkbox) {
+    const alertInstance = new Alert("Task Completed", `Task "${taskTitle}" has been completed.`, "No action needed.", true);
+    await alertInstance.sendEmail();
+    await alertInstance.createNotionPage(notionApi.key, notionApi.databaseId);
+    await alertInstance.sendSMSMessage();
+    await deleteTaskFromDatabase(task.id, databaseClient);
+  }
+}
+
+// Function to delete a task from the database
+async function deleteTaskFromDatabase(taskId, databaseClient) {
+  try {
+    await databaseClient.deleteTask(taskId);
+    console.log(`Deleted task with ID: ${taskId}`);
+  } catch (error) {
+    console.error('Error deleting task from database:', error);
+  }
+}
+
 // Export the functions for external usage
-export { reschedulePastEvents, listNotionPages };
+export { reschedulePastEvents, listNotionPages, checkAcknowledgeCheckbox, checkCompletedCheckbox };

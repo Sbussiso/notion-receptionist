@@ -3,14 +3,19 @@ Notion Receptionist is an all-in-one productivity, time management, and organiza
 
 Features
 TODO List Generation: Automatically generate TODO lists based on your Google Calendar events.
+
 Alert System: Send alerts via email and SMS, and log them in Notion.
+
 Event Management: Reschedule past events and list all Notion pages.
+
 Notion Integration: Create and manage Notion pages and databases.
+
 Prerequisites
 Node.js: Ensure you have Node.js installed on your machine.
 Environment Variables: Create a .env file in the root directory with the following content:
-env
+
 Copy code
+
 NOTION_API_KEY=your_notion_api_key
 NOTION_DATABASE_ID=your_notion_database_id
 GMAIL_USER=your_gmail_user
@@ -18,14 +23,18 @@ TWILIO_ACCOUNT_SID=your_twilio_account_sid
 TWILIO_AUTH_TOKEN=your_twilio_auth_token
 SMS_SENDER=whatsapp:+your_sender_number
 SMS_RECIPIENT=whatsapp:+your_recipient_number
+
+
 Installation
+
 Clone the Repository:
 
 bash
 Copy code
 git clone https://github.com/Sbussiso/notion-receptionist.git
 cd notion-receptionist
-Install Dependencies:
+
+Install Dependencies
 
 
 bash
@@ -48,7 +57,10 @@ TWILIO_ACCOUNT_SID=your_twilio_account_sid
 TWILIO_AUTH_TOKEN=your_twilio_auth_token
 SMS_SENDER=whatsapp:+your_sender_number
 SMS_RECIPIENT=whatsapp:+your_recipient_number
+
+
 Modules
+
 index.js
 The main entry point of the application. It initializes the Notion database, fetches page data, generates TODO lists, creates alerts, reschedules past events, and lists all Notion pages.
 
@@ -73,47 +85,7 @@ Contains functions to retrieve data and blocks from a Notion page.
 sendSMS.js
 Sends SMS messages using Twilio.
 
-Example Functions
-Create a TODO List Page
-javascript
-Copy code
-import TodoGenerator from './gpt-todo.js';
 
-async function createTodoPage(apiKey, databaseId) {
-  const todoGenerator = new TodoGenerator();
-  await todoGenerator.createNotionPage(apiKey, databaseId);
-  console.log("TODO list created successfully!");
-}
-Create an Alert
-javascript
-Copy code
-import Alert from './alert.js';
-
-async function createAlert(apiKey, databaseId) {
-  const alertInstance = new Alert("Server Down", "The main server is down.", "Restart the server.", false);
-  await alertInstance.sendEmail();
-  await alertInstance.createNotionPage(apiKey, databaseId);
-  await alertInstance.sendSMSMessage();
-  console.log("Alert created, email sent, and SMS sent successfully!");
-}
-List All Notion Pages
-javascript
-Copy code
-import { listNotionPages } from './event-manager.js';
-
-async function listAllNotionPages(parentPageId) {
-  try {
-    const pages = await listNotionPages(parentPageId);
-    console.log("Notion Pages:");
-    pages.forEach(page => {
-      if (page.type === 'child_page') {
-        console.log(`- ${page.child_page.title}`);
-      }
-    });
-  } catch (error) {
-    console.error('Error listing Notion pages:', error);
-  }
-}
 License
 This project is licensed under the MIT License.
 

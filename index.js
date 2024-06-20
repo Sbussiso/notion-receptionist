@@ -1,7 +1,7 @@
 import { getPageData, getPageBlocks, notionApi } from './pages.js';
 import TodoGenerator from './gpt-todo.js'; // Import the TodoGenerator class
 import Alert from './alert.js'; // Import the Alert class
-import { reschedulePastEvents, listNotionPages } from './event-manager.js'; // Import the new function
+import { reschedulePastEvents, listNotionPages, checkAcknowledgeCheckbox, checkCompletedCheckbox } from './event-manager.js'; // Import the new function
 import NotionDatabaseManager from './db-manager.js'; // Import the database manager
 
 // Create and send TODO list
@@ -35,16 +35,30 @@ async function listAllNotionPages(parentPageId) {
   }
 }
 
+// Function to check and alert for task acknowledgements and completions
+async function checkTasksAndAlerts(databaseManager) {
+  try {
+    const tasks = await databaseManager.getAllTasks(); // Assumes a function to get all tasks
+    for (const task of tasks) {
+      await checkAcknowledgeCheckbox(task);
+      await checkCompletedCheckbox(task, databaseManager);
+    }
+  } catch (error) {
+    console.error('Error checking tasks and alerts:', error);
+  }
+}
+
 // Execute the functions
 (async () => {
   const databaseManager = new NotionDatabaseManager();
   await databaseManager.ensureDatabaseExists(); // Ensure the database exists
   const databaseId = databaseManager.databaseId; // Get the database ID
 
-  await getPageData(notionApi.pageId);
-  await getPageBlocks(notionApi.pageId);
-  await createTodoPage(notionApi.key, databaseId);
-  await createAlert(notionApi.key, databaseId);
-  await reschedulePastEvents(); // Call the reschedule function
-  await listAllNotionPages(notionApi.pageId); // Call the function to list all Notion pages
+  //await getPageData(notionApi.pageId);
+  //await getPageBlocks(notionApi.pageId);
+  //await createTodoPage(notionApi.key, databaseId);
+  //await createAlert(notionApi.key, databaseId);
+  //await reschedulePastEvents(); // Call the reschedule function
+  //await listAllNotionPages(notionApi.pageId); // Call the function to list all Notion pages
+  await checkTasksAndAlerts(databaseManager); // Check and alert for task acknowledgements and completions
 })();

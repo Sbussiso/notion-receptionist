@@ -116,6 +116,8 @@ class Alert {
       console.error('Error sending SMS:', error);
     }
   }
+
+
 }
 
 export default Alert;
