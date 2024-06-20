@@ -1,7 +1,7 @@
 import { getPageData, getPageBlocks, notionApi } from './pages.js';
 import TodoGenerator from './gpt-todo.js'; // Import the TodoGenerator class
 import Alert from './alert.js'; // Import the Alert class
-import { reschedulePastEvents, listNotionPages, checkAcknowledgeCheckbox, checkCompletedCheckbox } from './event-manager.js'; // Import the new function
+import { reschedulePastEvents, listNotionPages, checkTasksAndAlerts } from './event-manager.js'; // Import the new function
 import NotionDatabaseManager from './db-manager.js'; // Import the database manager
 
 // Create and send TODO list
@@ -14,9 +14,7 @@ async function createTodoPage(apiKey, databaseId) {
 // Create and send alert
 async function createAlert(apiKey, databaseId) {
   const alertInstance = new Alert("Server Down", "The main server is down.", "Restart the server.", false);
-  await alertInstance.sendEmail();
-  await alertInstance.createNotionPage(apiKey, databaseId);
-  await alertInstance.sendSMSMessage();
+  await alertInstance.sendAlert(apiKey, databaseId);
   console.log("Alert created, email sent, and SMS sent successfully!");
 }
 
@@ -32,19 +30,6 @@ async function listAllNotionPages(parentPageId) {
     });
   } catch (error) {
     console.error('Error listing Notion pages:', error);
-  }
-}
-
-// Function to check and alert for task acknowledgements and completions
-async function checkTasksAndAlerts(databaseManager) {
-  try {
-    const tasks = await databaseManager.getAllTasks(); // Assumes a function to get all tasks
-    for (const task of tasks) {
-      await checkAcknowledgeCheckbox(task);
-      await checkCompletedCheckbox(task, databaseManager);
-    }
-  } catch (error) {
-    console.error('Error checking tasks and alerts:', error);
   }
 }
 

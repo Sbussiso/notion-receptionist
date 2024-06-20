@@ -106,5 +106,20 @@ async function deleteTaskFromDatabase(taskId, databaseClient) {
   }
 }
 
+
+// Function to check and alert for task acknowledgements and completions
+async function checkTasksAndAlerts() {
+  const databaseManager = new NotionDatabaseManager();
+  try {
+    const tasks = await databaseManager.getAllTasks(); // Assumes a function to get all tasks
+    for (const task of tasks) {
+      await checkAcknowledgeCheckbox(task);
+      await checkCompletedCheckbox(task, databaseManager);
+    }
+  } catch (error) {
+    console.error('Error checking tasks and alerts:', error);
+  }
+}
+
 // Export the functions for external usage
-export { reschedulePastEvents, listNotionPages, checkAcknowledgeCheckbox, checkCompletedCheckbox };
+export { reschedulePastEvents, listNotionPages, checkTasksAndAlerts };

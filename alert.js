@@ -117,7 +117,17 @@ class Alert {
     }
   }
 
-
+  // Consolidated method to send email, create Notion page, and send SMS
+  async sendAlert(apiKey, databaseId) {
+    try {
+      await this.sendEmail();
+      await this.createNotionPage(apiKey, databaseId);
+      await this.sendSMSMessage();
+      console.log("Alert created, email sent, and SMS sent successfully!");
+    } catch (error) {
+      console.error("Error in sending alert:", error);
+    }
+  }
 }
 
 export default Alert;
