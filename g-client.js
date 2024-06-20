@@ -89,7 +89,7 @@ class GmailClient {
       });
       const messages = res.data.messages;
       if (messages && messages.length) {
-        console.log('Messages:');
+        const emailData = [];
         for (const message of messages) {
           const messageRes = await gmail.users.messages.get({
             userId: 'me',
@@ -97,14 +97,18 @@ class GmailClient {
           });
           const headers = messageRes.data.payload.headers;
           const fromHeader = headers.find(header => header.name === 'From');
+          const snippet = messageRes.data.snippet;
           const sender = fromHeader ? fromHeader.value : 'Unknown sender';
-          console.log(`- ${message.id}: ${sender}`);
+          emailData.push({ sender, snippet });
         }
+        return emailData;
       } else {
         console.log('No messages found.');
+        return [];
       }
     } catch (err) {
       console.log('The API returned an error:', err);
+      return [];
     }
   }
 

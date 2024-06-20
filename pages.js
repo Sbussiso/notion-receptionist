@@ -50,6 +50,58 @@ export async function getPageBlocks(pageId) {
   }
 }
 
+// Function to create a Notion page
+export async function createNotionPage(todoContent, name) {
+  const formattedDateTime = new Date().toLocaleString();
+
+  const newPageData = {
+    parent: { 
+      type: 'database_id', 
+      database_id: process.env.NOTION_DATABASE_ID // Replace with the ID of the database
+    },
+    properties: {
+      Task: {
+        title: [
+          {
+            text: {
+              content: name + ' - ' + formattedDateTime
+            }
+          }
+        ]
+      },
+      Acknowledge: {
+        checkbox: false,
+      },
+      Completed: {
+        checkbox: false,
+      },
+    },
+    children: [
+      {
+        object: 'block',
+        type: 'paragraph',
+        paragraph: {
+          rich_text: [
+            {
+              type: 'text',
+              text: {
+                content: todoContent // Replace with the TODO list content from GPT-3
+              }
+            }
+          ]
+        }
+      }
+    ]
+  };
+
+  try {
+    const response = await notion.post('pages', newPageData);
+    console.log('Page created:', response.data);
+  } catch (error) {
+    console.error('Error creating page:', error.response ? error.response.data : error.message);
+  }
+}
+
 // Export Notion API key and page ID for reuse
 export const notionApi = {
   key: notionApiKey,
