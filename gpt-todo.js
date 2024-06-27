@@ -72,6 +72,21 @@ class TodoGenerator {
     });
     return completion.choices[0].message.content;
   }
+
+
+  async getEmailResponse(emailData) {
+    console.log(emailData);
+
+    const completion = await openai.chat.completions.create({
+      //model: 'gpt-4o',
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: `You are an email auto response system. Respond to this email as if you are the recipient` },
+        { role: 'user', content: emailData }
+      ]
+    });
+    return completion.choices[0].message.content;
+  }
 }
 
 export default TodoGenerator;

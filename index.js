@@ -19,7 +19,6 @@ async function createEmailSummaryPage(apiKey, databaseId, name) {
   console.log(emailSnapshot);
   await createNotionPage(emailSnapshot, name);
   console.log("Email summary created successfully!");
-
 }
 
 // Create and send alert
@@ -68,11 +67,11 @@ async function checkEmailsAndAlerts(emailsDatabaseManager) {
   await emailsDatabaseManager.ensureDatabaseExists(); // Ensure the Emails database exists
   const emailsDatabaseId = emailsDatabaseManager.databaseId; // Get the Emails database ID
 
-  await createTodoPage(notionApi.key, databaseId, "TODO");
-  await createEmailSummaryPage(notionApi.key, emailsDatabaseId, "Email Snapshot");
-  await createAlert(notionApi.key, databaseId);
-  await reschedulePastEvents(); // Call the reschedule function
+  //await createTodoPage(notionApi.key, databaseId, "TODO");
+  //await createEmailSummaryPage(notionApi.key, emailsDatabaseId, "Email Snapshot");
+  //await createAlert(notionApi.key, databaseId);
+  //await reschedulePastEvents(); // Call the reschedule function
   //await listAllNotionPages(notionApi.pageId); // Call the function to list all Notion pages
-  //await checkTasksAndAlerts(databaseManager); // Check and alert for task acknowledgements and completions
+  await checkTasksAndAlerts(databaseManager); // Check and alert for task acknowledgements and completions
   await checkEmailsAndAlerts(emailsDatabaseManager); // Check and alert for email actions
 })();

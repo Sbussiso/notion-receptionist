@@ -51,14 +51,17 @@ class NotionEmailsDatabaseManager {
           }
         ],
         properties: {
-          Subject: {
+          Emails: {
             title: {}
+          },
+          Received: {
+            date: {}
           },
           Sender: {
             rich_text: {}
           },
-          Received: {
-            date: {}
+          'Generated Responses': {
+            rich_text: {}
           }
         }
       });
